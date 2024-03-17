@@ -33,7 +33,7 @@ def getAllStudents():
         try:
             # execute query
             cursor = connection.cursor()
-            cursor.execute("SELECT * FROM students;")
+            cursor.execute("SELECT * FROM students ORDER BY student_id;")
             students = cursor.fetchall()
             for student in students:
                 print(student)
@@ -85,7 +85,7 @@ def updateStudentEmail(student_id, new_email):
             cursor.execute("UPDATE students SET email = %s WHERE student_id = %s;",
                            (new_email, student_id))
             connection.commit()
-            print("Successfully updated student id to the record")
+            print("Successfully updated student email to the record")
         # catch error and print out     
         except psycopg2.Error as e:
             print("Error updating student email:", e)
