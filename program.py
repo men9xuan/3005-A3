@@ -101,11 +101,14 @@ def deleteStudent(student_id):
     connection = connect_db()
     if connection:
         try: 
+            # execute query
             cursor = connection.cursor()
             cursor.execute("SELECT * FROM students WHERE student_id = %s;", (student_id,))
+            # check if student record exists in database
             if not cursor.fetchone():
                 print("Error: student with id {} does not exist.".format(student_id))
                 return
+            # execute query
             cursor.execute("DELETE FROM students WHERE student_id = %s;",
                            (student_id,))
             connection.commit()
