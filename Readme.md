@@ -10,7 +10,7 @@ Student ID: 101216702
 ## Usage
 1. **Clone the Repo**:  
     ```bash
-    git clone <repository_url>
+    git clone https://github.com/men9xuan/3005-A3.git
     ```
    
 2. **Modify Connection Parameters**:  
