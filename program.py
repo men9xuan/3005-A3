@@ -7,7 +7,7 @@ password = 'postgres'
 host = '127.0.0.1'  
 port = '5432'  
 
-# helper function to connect to postgres server
+# Helper function to connect to postgres server
 def connect_db():
     try:
         # connect to server with psycopg2
@@ -18,6 +18,7 @@ def connect_db():
             host=host,
             port=port
         )
+        connection.autocommit = True
         return connection
     # catch error and print out 
     except psycopg2.Error as e:
@@ -42,7 +43,6 @@ def getAllStudents():
             print("Error retrieving students:", e)
         # close connection
         finally:
-            cursor.close()
             connection.close()
     else: 
         print('Failed to connect to the database')        
@@ -57,20 +57,19 @@ def addStudent(first_name, last_name, email, enrollment_date):
             cursor = connection.cursor()
             cursor.execute("INSERT INTO students (first_name, last_name, email, enrollment_date) VALUES (%s, %s, %s, %s);",
                            (first_name, last_name, email, enrollment_date))
-            connection.commit()
             print("Successfully added student to the record")
 
         # catch error and print out 
         except psycopg2.Error as e:
             print("Error adding student:", e)
         finally:
-            cursor.close()
             connection.close()
     else: 
         print('Failed to connect to the database')        
 
 # Update student email by student id
 def updateStudentEmail(student_id, new_email):
+    # connect to pg server 
     connection = connect_db()
     if connection:
         try: 
@@ -84,20 +83,19 @@ def updateStudentEmail(student_id, new_email):
             # execute query
             cursor.execute("UPDATE students SET email = %s WHERE student_id = %s;",
                            (new_email, student_id))
-            connection.commit()
             print("Successfully updated student email to the record")
         # catch error and print out     
         except psycopg2.Error as e:
             print("Error updating student email:", e)
         # close connection
         finally:
-            cursor.close()
             connection.close()
     else: 
         print('Failed to connect to the database')        
 
 # Delete student record by student id
 def deleteStudent(student_id):
+    # connect to pg server 
     connection = connect_db()
     if connection:
         try: 
@@ -111,13 +109,11 @@ def deleteStudent(student_id):
             # execute query
             cursor.execute("DELETE FROM students WHERE student_id = %s;",
                            (student_id,))
-            connection.commit()
             print("Successfully deleted student id {} from the record".format(student_id))
         except psycopg2.Error as e:
             print("Error deleting student:", e)
         # close connection
         finally:
-            cursor.close()
             connection.close()
     else: 
         print('Failed to connect to the database')        
@@ -136,13 +132,11 @@ def initialize():
     email TEXT NOT NULL UNIQUE,\
     enrollment_date DATE\
 );")
-            connection.commit()
             print("Successfully initialized students table")
         except psycopg2.Error as e:
             print("Error deleting student:", e)
         # close connection
         finally:
-            cursor.close()
             connection.close()
     else: 
         print('Failed to connect to the database')   
@@ -157,12 +151,10 @@ def insertSample():
 ('John', 'Doe', 'john.doe@example.com', '2023-09-01'),\
 ('Jane', 'Smith', 'jane.smith@example.com', '2023-09-01'),\
 ('Jim', 'Beam', 'jim.beam@example.com', '2023-09-02');")
-            connection.commit()
             print("Successfully inserted sample students")
         except psycopg2.Error as e:
             print("Error deleting student:", e)
         finally:
-            cursor.close()
             connection.close()
     else: 
         print('Failed to connect to the database')   
@@ -191,9 +183,19 @@ functions = {
     "insertSample" : insertSample
 }
 
+# map of supported function to the number of args
+expectedArgsCount = {
+    "addStudent": 4,
+    "getAllStudents" : 0,
+    "updateStudentEmail": 2,
+    "deleteStudent": 1,
+    "help" : 0,
+    "initialize": 0,
+    "insertSample" : 0
+}
 # Main function
 def start():
-    print("Welcome to the STUDENT RECORD MANAGEMENT SYSTEM\n")
+    print("\nWelcome to the STUDENT RECORD MANAGEMENT SYSTEM\n")
     help()
     
     while True:
@@ -209,6 +211,10 @@ def start():
             exit()
 
         if cmd in functions:
+            # ensure correct number of args are sent to the corresponding function
+            if expectedArgsCount[cmd] != len(args):
+                 print("Error: \'{}\' expects {} args".format(cmd, expectedArgsCount[cmd]))
+                 continue 
             functions[cmd](*args)
             print()
         else:
