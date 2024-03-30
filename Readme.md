@@ -1,9 +1,5 @@
 # COMP 3005 A3 README
 
-## Author
-Mengxuan Shi  
-Student ID: 101216702  
-
 ## Demo Video
 [Watch Demo Video](https://mediaspace.carleton.ca/media/COMP3005%20A3%20demo/1_9aln3cb4)
 
